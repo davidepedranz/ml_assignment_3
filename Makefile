@@ -4,7 +4,15 @@
 # export CUDA_VISIBLE_DEVICES=""
 
 # all
-all: complete model1 model2 model3
+all: clean complete model1 model2 model3
+
+# remove old data
+clean:
+	@echo "Removing old data..."
+	@rm -rf csv
+	@rm -rf graphs
+	@rm -rf logs
+	@echo ""
 
 # run complete network
 complete:
