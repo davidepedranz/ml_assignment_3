@@ -1,7 +1,8 @@
-from nn_utilities import convolutional_layer, connected_layer, softmax_layer, cross_entropy_fun, accuracy_fun
-from tensorflow.contrib.learn.python.learn import datasets
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from tensorflow.contrib.learn.python.learn import datasets
+from nn_utilities import convolutional_layer, connected_layer, softmax_layer, cross_entropy_fun, accuracy_fun
+from plot_utitilies import plot
 
 
 def main():
@@ -11,9 +12,15 @@ def main():
     """
 
     # training details
-    N_EPOCHS = 20000
+    N_EPOCHS = 20001
     SUMMARY_EVERY = 100
     BATCH_SIZE = 50
+    NETWORK_NAME = 'original network'
+    PATH = '00_original'
+
+    # N_EPOCHS = 2
+    # SUMMARY_EVERY = 1
+    # BATCH_SIZE = 5
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
@@ -63,8 +70,13 @@ def main():
 
         # register metrics
         merged = tf.summary.merge_all()
-        train_writer = tf.summary.FileWriter('logs/00_complete/train', sess.graph)
-        test_writer = tf.summary.FileWriter('logs/00_complete/test')
+        train_writer = tf.summary.FileWriter('logs/' + PATH + '/train', sess.graph)
+        test_writer = tf.summary.FileWriter('logs/' + PATH + '/test')
+
+        # save the result of accuracy to plot them
+        accuracies_indexes = []
+        accuracies_train = []
+        accuracies_test = []
 
         # NB: since my machine has not enough memory, measure the performances
         #     on the train set using a random selection of samples
@@ -76,27 +88,42 @@ def main():
         sess.run(init)
 
         # train the network using batches of training examples
-        for i in range(N_EPOCHS):
+        print('\nStart of training:')
+        for i in range(0, N_EPOCHS):
             xs, ys = mnist.train.next_batch(BATCH_SIZE)
-            sess.run(train_step, feed_dict={x: xs, y_: ys, keep_prob: 0.5})
 
             # every x epochs, register train and test accuracy
             if i % SUMMARY_EVERY == 0:
+                print(' * epoch %5d of %d ...' % (i, N_EPOCHS))
+
+                # save metrics for TensorBoard
                 summary_train = sess.run(merged, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
                 train_writer.add_summary(summary_train, i)
                 summary_test = sess.run(merged, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
                 test_writer.add_summary(summary_test, i)
-                print('epoch %5d of %d ...' % (i, N_EPOCHS))
+
+                # save accuracy for plot
+                train_acc = sess.run(accuracy, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
+                test_acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+                accuracies_indexes.append(i)
+                accuracies_train.append(train_acc)
+                accuracies_test.append(test_acc)
+
+            # train the network
+            sess.run(train_step, feed_dict={x: xs, y_: ys, keep_prob: 0.5})
 
         # print the results at the end of the training
-        train_accuracy = sess.run(accuracy, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
-        test_accuracy = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+        train_acc = sess.run(accuracy, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
+        test_acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
         print('\nEnd of training:')
-        print(' * train accuracy = %g' % train_accuracy)
-        print(' * test accuracy  = %g' % test_accuracy)
+        print(' * train accuracy = %g' % train_acc)
+        print(' * test accuracy  = %g' % test_acc)
 
     # end of training session
     sess.close()
+
+    # plot the graph
+    plot(accuracies_indexes, accuracies_train, accuracies_test, NETWORK_NAME, PATH)
 
 
 # entry point
