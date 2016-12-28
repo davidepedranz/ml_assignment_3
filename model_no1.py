@@ -7,21 +7,16 @@ from export_utitilies import plot, save_csv
 
 def main():
     """
-    Train a Deep Network with 2 convolutional layer, a fully connected layer
+    Train a Deep Network with 1 convolutional layer, a fully connected layer
     with dropout and an output softmax layer for the MNIST dataset.
-    This version removes the first layer.
     """
 
     # training details
-    N_EPOCHS = 20001
+    N_EPOCHS = 10001
     SUMMARY_EVERY = 100
     BATCH_SIZE = 50
-    NETWORK_NAME = 'n01 network'
-    PATH = '01_model_no1'
-
-    N_EPOCHS = 300
-    SUMMARY_EVERY = 100
-    BATCH_SIZE = 25
+    NETWORK_NAME = 'model 1'
+    PATH = '01_model_1'
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)

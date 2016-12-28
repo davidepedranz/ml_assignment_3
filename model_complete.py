@@ -12,15 +12,11 @@ def main():
     """
 
     # training details
-    N_EPOCHS = 20001
+    N_EPOCHS = 10001
     SUMMARY_EVERY = 100
     BATCH_SIZE = 50
     NETWORK_NAME = 'original network'
     PATH = '00_original'
-
-    N_EPOCHS = 300
-    SUMMARY_EVERY = 100
-    BATCH_SIZE = 50
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
