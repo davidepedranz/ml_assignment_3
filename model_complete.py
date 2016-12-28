@@ -12,7 +12,7 @@ def main():
     """
 
     # training details
-    N_EPOCHS = 10001
+    N_EPOCHS = 20001
     SUMMARY_EVERY = 100
     BATCH_SIZE = 50
     NETWORK_NAME = 'original network'

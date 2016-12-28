@@ -12,7 +12,7 @@ def main():
     """
 
     # training details
-    N_EPOCHS = 10001
+    N_EPOCHS = 20001
     SUMMARY_EVERY = 100
     BATCH_SIZE = 50
     NETWORK_NAME = 'model 1'
@@ -28,11 +28,11 @@ def main():
 
     # 1st layer was removed
     # 2nd layer: Second Convolutional Layer
-    layer_2 = convolutional_layer(x_image, [5, 5, 1], [32], '2_convolutional')
-    layer_2_flat = tf.reshape(layer_2, [-1, 14 * 14 * 32], 'flatten')
+    layer_2 = convolutional_layer(x_image, [5, 5, 1], [64], '2_convolutional')
+    layer_2_flat = tf.reshape(layer_2, [-1, 14 * 14 * 64], 'flatten')
 
     # 3rd layer: Densely Connected Layer + Dropout
-    layer_3 = connected_layer(layer_2_flat, [14 * 14 * 32], [1024], '3_connected')
+    layer_3 = connected_layer(layer_2_flat, [14 * 14 * 64], [1024], '3_connected')
     keep_prob = tf.placeholder(tf.float32, name='keep_prob')
     layer_3_dropped = tf.nn.dropout(layer_3, keep_prob)
 

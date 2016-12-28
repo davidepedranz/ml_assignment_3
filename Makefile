@@ -1,10 +1,14 @@
 .DEFAULT_GOAL := all
-.PHONY: all complete model1 model2 model3
-
-# export CUDA_VISIBLE_DEVICES=""
+.PHONY: all complete model1 model2 model3 pause
 
 # all
-all: clean complete model1 model2 model3
+all: clean complete pause model1 pause model3 pause model2
+
+# pause
+pause:
+	@echo "Pause for 10 minutes"
+	@sleep 600
+	@echo ""
 
 # remove old data
 clean:
@@ -16,27 +20,27 @@ clean:
 
 # run complete network
 complete:
-	@echo "Running the model complete..."
+	@echo "[GPU] Running the model complete..."
 	@echo ""
 	@python model_complete.py
 	@echo ""
 
 # run model 1
 model1:
-	@echo "Running the model 1..."
+	@echo "[CPU] Running the model 1..."
 	@echo ""
-	@python model_no1.py
+	@export CUDA_VISIBLE_DEVICES="" python model_no1.py
 	@echo ""
 
 # run model 2
 model2:
-	@echo "Running the model 2..."
+	@echo "[CPU] Running the model 2..."
 	@echo ""
-	@python model_no2.py
+	@export CUDA_VISIBLE_DEVICES="" python model_no2.py
 	@echo ""
 
 # run model 3
 model3:
-	@echo "Running the model 3..."
+	@echo "[GPU] Running the model 3..."
 	@python model_no3.py
 	@echo ""
