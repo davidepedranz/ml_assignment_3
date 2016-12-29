@@ -2,7 +2,8 @@
 .PHONY: all complete model1 model2 model3 pause
 
 # all
-all: clean complete pause model1 pause model3 pause model2
+all: clean complete
+# pause model1 pause model3 pause model2
 
 # pause
 pause:

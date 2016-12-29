@@ -1,70 +1,151 @@
 import tensorflow as tf
+import collections
+import sys
+import string
 
 
-def initialize_variable(shape):
+def training_parameters():
+    Params = collections.namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path'])
+    name = string.replace(sys.modules['__main__'].__file__, '.py', '')
+    return Params(epochs=1, batch_size=50, summary_every=100, logs_path=name)
+
+
+def bias_variable(shape):
     """
-    Create a variable of the given shape which is initialized with a random value closed to zero.
+    Create a bias variable of the given shape which is initialized with a random value closed to zero.
     :param shape: Shape of the variable.
     :return:      Variable with the given shape, initialized with a value closed to zero.
     """
-    initial = tf.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial)
+    with tf.name_scope('biases'):
+        initial = tf.constant(0.1, shape=shape)
+        variable = tf.Variable(initial)
+    return variable
 
 
-def convolutional_layer(input_tensor, input_dim, output_dim, layer_name):
+def weight_variable(shape):
+    """
+    Create a weights variable of the given shape which is initialized with a fixed value closed to zero.
+    :param shape: Shape of the variable.
+    :return:      Variable with the given shape, initialized with a value closed to zero.
+    """
+    with tf.name_scope('weights'):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        variable = tf.Variable(initial)
+    return variable
+
+
+def conv2d(x, W):
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+
+def max_pool_2x2(x):
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+
+def mnist_input_layer(name):
+    """
+    Create an input layer for the MNIST dataset.
+    :param name: Namespace name for the new layer (used for the TensorBoard tool).
+    :return: Pair of x_flatten and x_image
+    """
+    with tf.name_scope(name):
+        x_flatten = tf.placeholder(tf.float32, shape=[None, 784], name='x_flatten')
+        x_image = tf.reshape(x_flatten, [-1, 28, 28, 1], name='x_image')
+    return x_flatten, x_image
+
+
+def mnist_output_layer(name):
+    """
+    Create an output layer for the MNIST dataset.
+    :param name: Namespace name for the new layer (used for the TensorBoard tool).
+    :return: Pair of the predicted y and its label.
+    """
+    with tf.name_scope(name):
+        y_ = tf.placeholder(tf.float32, shape=[None, 10], name='y_')
+        y_label = tf.argmax(y_, 1, name='y_label')
+    return y_, y_label
+
+
+def convolutional_layer(input_tensor, input_dim, output_dim, name):
     """
     Create a new convolutional layer.
     :param input_tensor: Input of the new convolutional layer (must be a tensor).
     :param input_dim:    Dimension of the input features (must be a list).
     :param output_dim:   Dimension of the output features (must be a list).
-    :param layer_name:   Namespace name for the new layer (used for the TensorBoard tool).
+    :param name:         Namespace name for the new layer (used for the TensorBoard tool).
     :return:             Activation value of the layer.
     """
-    with tf.name_scope(layer_name):
-        with tf.name_scope('weights'):
-            weights = initialize_variable(input_dim + output_dim)
-        with tf.name_scope('biases'):
-            biases = initialize_variable(output_dim)
-        with tf.name_scope('h_convolution'):
-            h_conv = tf.nn.relu(tf.nn.conv2d(input_tensor, weights, strides=[1, 1, 1, 1], padding='SAME') + biases)
-        with tf.name_scope('h_pooling'):
-            h_pool = tf.nn.max_pool(h_conv, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-        return h_pool
+    with tf.name_scope(name):
+        weights = weight_variable(input_dim + output_dim)
+        biases = bias_variable(output_dim)
+        with tf.name_scope('convolution'):
+            h_conv = tf.nn.relu(conv2d(input_tensor, weights) + biases)
+    return h_conv
 
 
-def connected_layer(input_tensor, input_dim, output_dim, layer_name):
+def pooling_layer(input_tensor, name):
+    """
+    Create a new convolutional layer.
+    :param input_tensor: Input of the new polling layer (must be a tensor).
+    :param name:         Namespace name for the new layer (used for the TensorBoard tool).
+    :return:             Activation value of the layer.
+    """
+    with tf.name_scope(name):
+        h_pool = max_pool_2x2(input_tensor)
+    return h_pool
+
+
+def connected_layer(input_tensor, input_dim, output_dim, name):
     """
     Create a fully connected layer of neurons with a ReLU activation function.
     :param input_tensor: Input of the new convolutional layer (must be a tensor).
     :param input_dim:    Dimension of the input features (must be a list).
     :param output_dim:   Dimension of the output features (must be a list).
-    :param layer_name:   Namespace name for the new layer (used for the TensorBoard tool).
+    :param name:         Namespace name for the new layer (used for the TensorBoard tool).
     :return:             Activation value of the layer.
     """
-    with tf.name_scope(layer_name):
+    with tf.name_scope(name):
         with tf.name_scope('weights'):
-            weights = initialize_variable(input_dim + output_dim)
+            weights = weight_variable(input_dim + output_dim)
         with tf.name_scope('biases'):
-            biases = initialize_variable(output_dim)
+            biases = bias_variable(output_dim)
         with tf.name_scope('activation'):
             activation = tf.nn.relu(tf.matmul(input_tensor, weights) + biases)
         return activation
 
 
-def softmax_layer(input_tensor, input_dim, output_dim, layer_name):
+def relu_dropout_layer(input_tensor, input_dim, output_dim, name):
+    """
+    Create a fully connected layer of neurons with a ReLU activation function.
+    :param input_tensor: Input of the new convolutional layer (must be a tensor).
+    :param input_dim:    Dimension of the input features (must be a list).
+    :param output_dim:   Dimension of the output features (must be a list).
+    :param name:         Namespace name for the new layer (used for the TensorBoard tool).
+    :return:             Activation value of the layer and probability variable for Dropout.
+    """
+    with tf.name_scope(name):
+        weights = weight_variable(input_dim + output_dim)
+        biases = bias_variable(output_dim)
+        with tf.name_scope('ReLU'):
+            relu_activation = tf.nn.relu(tf.matmul(input_tensor, weights) + biases)
+        with tf.name_scope('dropout'):
+            keep_prob = tf.placeholder(tf.float32, name='keep_prob')
+            dropout_activation = tf.nn.dropout(relu_activation, keep_prob)
+    return dropout_activation, keep_prob
+
+
+def softmax_layer(input_tensor, input_dim, output_dim, name):
     """
     Create a new Softmax layer.
     :param input_tensor: Input of the new convolutional layer (must be a tensor).
     :param input_dim:    Dimension of the input features (must be a list).
     :param output_dim:   Dimension of the output features (must be a list).
-    :param layer_name:   Namespace name for the new layer (used for the TensorBoard tool).
-    :return:             Activation value of the layer.
+    :param name:         Namespace name for the new layer (used for the TensorBoard tool).
+    :return:             Activation value of the layer and computed label.
     """
-    with tf.name_scope(layer_name):
-        with tf.name_scope('weights'):
-            weights = initialize_variable(input_dim + output_dim)
-        with tf.name_scope('biases'):
-            biases = initialize_variable(output_dim)
+    with tf.name_scope(name):
+        weights = weight_variable(input_dim + output_dim)
+        biases = bias_variable(output_dim)
         with tf.name_scope('activation'):
             activation = tf.matmul(input_tensor, weights) + biases
         with tf.name_scope('label'):
@@ -82,6 +163,7 @@ def accuracy_fun(prediction, real):
     with tf.name_scope('accuracy'):
         correct_prediction = tf.equal(prediction, real)
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    tf.summary.scalar('accuracy', accuracy)
     return accuracy
 
 
@@ -94,4 +176,5 @@ def cross_entropy_fun(prediction, real):
     """
     with tf.name_scope('cross_entropy'):
         cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(prediction, real))
+    tf.summary.scalar('cross_entropy', cross_entropy)
     return cross_entropy

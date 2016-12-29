@@ -1,7 +1,6 @@
 import numpy as np
-import tensorflow as tf
 from tensorflow.contrib.learn.python.learn import datasets
-from nn_utilities import convolutional_layer, connected_layer, softmax_layer, cross_entropy_fun, accuracy_fun
+from nn_utilities import *
 from export_utitilies import plot, save_csv
 
 
@@ -12,47 +11,43 @@ def main():
     """
 
     # training details
-    N_EPOCHS = 20001
-    SUMMARY_EVERY = 100
-    BATCH_SIZE = 50
-    NETWORK_NAME = 'original network'
-    PATH = '00_original'
+    params = training_parameters()
+    network_name = 'original network'
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
 
     # input
-    with tf.name_scope('input'):
-        x = tf.placeholder(tf.float32, shape=[None, 784], name='x_flatten')
-        x_image = tf.reshape(x, [-1, 28, 28, 1], name='x_image')
+    x_flatten, x_image = mnist_input_layer(name='input')
 
     # 1st layer: First Convolutional Layer
-    layer_1 = convolutional_layer(x_image, [5, 5, 1], [16], '1_convolutional')
+    layer_1_conv = convolutional_layer(x_image, [5, 5, 1], [32], name='convolution_1')
+    layer_1_pool = pooling_layer(layer_1_conv, name='pooling_1')
+    layer_1 = layer_1_pool
 
     # 2nd layer: Second Convolutional Layer
-    layer_2 = convolutional_layer(layer_1, [5, 5, 16], [32], '2_convolutional')
-    layer_2_flat = tf.reshape(layer_2, [-1, 7 * 7 * 32], 'flatten')
+    layer_2_conv = convolutional_layer(layer_1, [5, 5, 32], [64], name='convolution_2')
+    layer_2_pool = pooling_layer(layer_2_conv, name='pooling_2')
+    layer_2 = layer_2_pool
+
+    # flatten the input, so that it can fit the 3rd layer
+    with tf.name_scope('flatten'):
+        layer_2_flat = tf.reshape(layer_2, [-1, 7 * 7 * 64])
 
     # 3rd layer: Densely Connected Layer + Dropout
-    layer_3 = connected_layer(layer_2_flat, [7 * 7 * 32], [1024], '3_connected')
-    keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-    layer_3_dropped = tf.nn.dropout(layer_3, keep_prob)
+    layer_3, keep_prob = relu_dropout_layer(layer_2_flat, [7 * 7 * 64], [1024], name='relu_dropout_3')
 
     # 4th layer: Readout Layer
-    y_predicted_one_hot, y_predicted_label = softmax_layer(layer_3_dropped, [1024], [10], '4_softmax')
+    y_predicted_one_hot, y_predicted_label = softmax_layer(layer_3, [1024], [10], name='softmax_4')
 
     # output
-    with tf.name_scope('real_output'):
-        y_ = tf.placeholder(tf.float32, shape=[None, 10], name='y_')
-        y_real_label = tf.argmax(y_, 1, name='y_label')
+    y_, y_label = mnist_output_layer(name='output')
 
     # evaluation metrics
-    accuracy = accuracy_fun(y_predicted_label, y_real_label)
-    tf.summary.scalar('accuracy', accuracy)
+    accuracy = accuracy_fun(y_predicted_label, y_label)
 
     # training step
     cross_entropy = cross_entropy_fun(y_predicted_one_hot, y_)
-    tf.summary.scalar('cross_entropy', cross_entropy)
     with tf.name_scope('train'):
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
@@ -61,14 +56,13 @@ def main():
         init = tf.global_variables_initializer()
 
     # train the network
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.80)
-    sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+    sess = tf.Session()
     with sess.as_default():
 
         # register metrics
         merged = tf.summary.merge_all()
-        train_writer = tf.summary.FileWriter('logs/' + PATH + '/train', sess.graph)
-        test_writer = tf.summary.FileWriter('logs/' + PATH + '/test')
+        train_writer = tf.summary.FileWriter('logs/' + params.logs_path + '/train', sess.graph)
+        test_writer = tf.summary.FileWriter('logs/' + params.logs_path + '/test')
 
         # save the result of accuracy to plot them
         accuracies_indexes = []
@@ -86,32 +80,34 @@ def main():
 
         # train the network using batches of training examples
         print('\nStart of training:')
-        for i in range(1, N_EPOCHS + 1):
-            xs, ys = mnist.train.next_batch(BATCH_SIZE)
+        for i in range(1, params.epochs + 1):
+            xs, ys = mnist.train.next_batch(params.batch_size)
 
             # train the network
-            sess.run(train_step, feed_dict={x: xs, y_: ys, keep_prob: 0.5})
+            sess.run(train_step, feed_dict={x_flatten: xs, y_: ys, keep_prob: 0.5})
 
             # every x epochs, register train and test accuracy
-            if i % SUMMARY_EVERY == 0:
-                print(' * epoch %5d of %d ...' % (i, N_EPOCHS))
+            if i % params.summary_every == 0:
+                print(' * epoch %5d of %d ...' % (i, params.epochs))
 
                 # save metrics for TensorBoard
-                summary_train = sess.run(merged, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
+                summary_train = sess.run(merged, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
                 train_writer.add_summary(summary_train, i)
-                summary_test = sess.run(merged, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+                summary_test = sess.run(merged,
+                                        feed_dict={x_flatten: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
                 test_writer.add_summary(summary_test, i)
 
                 # save accuracy for plot
-                train_acc = sess.run(accuracy, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
-                test_acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+                train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
+                test_acc = sess.run(accuracy,
+                                    feed_dict={x_flatten: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
                 accuracies_indexes.append(i)
                 accuracies_train.append(train_acc)
                 accuracies_test.append(test_acc)
 
         # print the results at the end of the training
-        train_acc = sess.run(accuracy, feed_dict={x: train_images, y_: train_labels, keep_prob: 1.0})
-        test_acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+        train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
+        test_acc = sess.run(accuracy, feed_dict={x_flatten: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
         print('\nEnd of training:')
         print(' * train accuracy = %g' % train_acc)
         print(' * test accuracy  = %g' % test_acc)
@@ -120,8 +116,8 @@ def main():
     sess.close()
 
     # plot the graph & save data as CSV
-    plot(accuracies_indexes, accuracies_train, accuracies_test, NETWORK_NAME, PATH)
-    save_csv(accuracies_indexes, accuracies_train, accuracies_test, PATH)
+    plot(accuracies_indexes, accuracies_train, accuracies_test, network_name, params.logs_path)
+    save_csv(accuracies_indexes, accuracies_train, accuracies_test, params.logs_path)
 
 
 # entry point
