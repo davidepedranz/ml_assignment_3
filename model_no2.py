@@ -1,4 +1,3 @@
-import numpy as np
 from tensorflow.contrib.learn.python.learn import datasets
 from nn_utilities import *
 from export_utitilies import save_csv
@@ -14,6 +13,9 @@ def main():
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
+
+    # force the seed
+    tf.set_random_seed(params.seed)
 
     # input
     x_flatten, x_image = mnist_input_layer(name='input')
@@ -65,12 +67,7 @@ def main():
 
         # NB: since my machine has not enough memory, measure the performances
         #     on the train set using a random selection of samples
-        train_subset = np.random.choice(mnist.train.num_examples, params.num_sample_acc)
-        train_images = mnist.train.images[train_subset]
-        train_labels = mnist.train.labels[train_subset]
-        test_subset = np.random.choice(mnist.test.num_examples, params.num_sample_acc)
-        test_images = mnist.test.images[test_subset]
-        test_labels = mnist.test.labels[test_subset]
+        train_images, train_labels, test_images, test_labels = mnist_subset(mnist, params.num_sample_acc, params.seed)
 
         # initialize the variables
         sess.run(init)

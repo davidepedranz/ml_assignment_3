@@ -1,13 +1,31 @@
+from collections import namedtuple
 import tensorflow as tf
-import collections
+import numpy as np
 import sys
 import string
 
 
 def training_parameters():
-    Params = collections.namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc'])
+    Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc', 'seed'])
     name = string.replace(sys.modules['__main__'].__file__, '.py', '')
-    return Params(epochs=20001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000)
+    return Params(epochs=20001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000, seed=1)
+
+
+def mnist_subset(mnist, num_samples, seed):
+    # force always the same seed
+    np.random.seed(seed)
+
+    # extract a subset of the train set
+    train_subset = np.random.choice(mnist.train.num_examples, num_samples)
+    train_images = mnist.train.images[train_subset]
+    train_labels = mnist.train.labels[train_subset]
+
+    # extract a subset of the test set
+    test_subset = np.random.choice(mnist.test.num_examples, num_samples)
+    test_images = mnist.test.images[test_subset]
+    test_labels = mnist.test.labels[test_subset]
+
+    return train_images, train_labels, test_images, test_labels
 
 
 def bias_variable(shape):
