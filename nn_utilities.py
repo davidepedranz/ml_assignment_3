@@ -6,14 +6,18 @@ import string
 
 
 def training_parameters():
-    Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc', 'seed'])
+    Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc'])
     name = string.replace(sys.modules['__main__'].__file__, '.py', '')
-    return Params(epochs=20001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000, seed=1)
+    return Params(epochs=20001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000)
 
 
-def mnist_subset(mnist, num_samples, seed):
+def get_seed():
+    return 1
+
+
+def mnist_subset(mnist, num_samples):
     # force always the same seed
-    np.random.seed(seed)
+    np.random.seed(get_seed())
 
     # extract a subset of the train set
     train_subset = np.random.choice(mnist.train.num_examples, num_samples)
@@ -47,7 +51,7 @@ def weight_variable(shape):
     :return:      Variable with the given shape, initialized with a value closed to zero.
     """
     with tf.name_scope('weights'):
-        initial = tf.truncated_normal(shape, stddev=0.1)
+        initial = tf.truncated_normal(shape, stddev=0.1, seed=get_seed())
         variable = tf.Variable(initial)
     return variable
 
@@ -148,7 +152,7 @@ def relu_dropout_layer(input_tensor, input_dim, output_dim, name):
             relu_activation = tf.nn.relu(tf.matmul(input_tensor, weights) + biases)
         with tf.name_scope('dropout'):
             keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-            dropout_activation = tf.nn.dropout(relu_activation, keep_prob)
+            dropout_activation = tf.nn.dropout(relu_activation, keep_prob, seed=get_seed())
     return dropout_activation, keep_prob
 
 

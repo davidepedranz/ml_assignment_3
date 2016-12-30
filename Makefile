@@ -24,22 +24,22 @@ clean:
 complete:
 	@echo "[GPU] Running the model complete..."
 	@echo ""
-	@python model_complete.py
+	@python model_complete.py 2> /dev/null
 	@echo ""
 
 model1:
 	@echo "[CPU] Running the model 1..."
 	@echo ""
-	@CUDA_VISIBLE_DEVICES="" python model_no1.py
+	@CUDA_VISIBLE_DEVICES="" python model_no1.py 2> /dev/null
 	@echo ""
 
 model2:
 	@echo "[CPU] Running the model 2..."
 	@echo ""
-	@CUDA_VISIBLE_DEVICES="" python model_no2.py
+	@CUDA_VISIBLE_DEVICES="" python model_no2.py 2> /dev/null
 	@echo ""
 
 model3:
 	@echo "[GPU] Running the model 3..."
-	@python model_no3.py
+	@python model_no3.py 2> /dev/null
 	@echo ""

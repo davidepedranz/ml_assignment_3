@@ -9,14 +9,15 @@ def main():
     with dropout and an output softmax layer for the MNIST dataset.
     """
 
+    # force the same seed
+    np.random.seed(get_seed())
+    tf.set_random_seed(get_seed())
+
     # training details
     params = training_parameters()
 
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
-
-    # force the seed
-    tf.set_random_seed(params.seed)
 
     # input
     x_flatten, x_image = mnist_input_layer(name='input')
@@ -70,7 +71,7 @@ def main():
 
         # NB: since my machine has not enough memory, measure the performances
         #     on the train set using a random selection of samples
-        train_images, train_labels, test_images, test_labels = mnist_subset(mnist, params.num_sample_acc, params.seed)
+        train_images, train_labels, test_images, test_labels = mnist_subset(mnist, params.num_sample_acc)
 
         # initialize the variables
         sess.run(init)
