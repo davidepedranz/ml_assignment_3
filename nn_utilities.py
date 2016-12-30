@@ -5,9 +5,9 @@ import string
 
 
 def training_parameters():
-    Params = collections.namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path'])
+    Params = collections.namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc'])
     name = string.replace(sys.modules['__main__'].__file__, '.py', '')
-    return Params(epochs=1, batch_size=50, summary_every=100, logs_path=name)
+    return Params(epochs=20001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000)
 
 
 def bias_variable(shape):

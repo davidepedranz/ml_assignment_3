@@ -6,8 +6,7 @@ from export_utitilies import save_csv
 
 def main():
     """
-    Train a Deep Network with 2 convolutional layer, a fully connected layer
-    with dropout and an output softmax layer for the MNIST dataset.
+    Like "model_complete.py", but without the first layer of convolution and pooling.
     """
 
     # training details
@@ -19,20 +18,17 @@ def main():
     # input
     x_flatten, x_image = mnist_input_layer(name='input')
 
-    # 1st layer: First Convolutional + Pooling Layer
-    layer_1_conv = convolutional_layer(x_image, [5, 5, 1], [32], name='convolution_1')
-    layer_1_pool = pooling_layer(layer_1_conv, name='pooling_1')
-
+    # 1st layer: removed!
     # 2nd layer: Second Convolutional + Pooling Layer
-    layer_2_conv = convolutional_layer(layer_1_pool, [5, 5, 32], [64], name='convolution_2')
+    layer_2_conv = convolutional_layer(x_image, [5, 5, 1], [64], name='convolution_2')
     layer_2_pool = pooling_layer(layer_2_conv, name='pooling_2')
 
     # flatten the input, so that it can fit the 3rd layer
     with tf.name_scope('flatten'):
-        layer_2_flat = tf.reshape(layer_2_pool, [-1, 7 * 7 * 64])
+        layer_2_flat = tf.reshape(layer_2_pool, [-1, 14 * 14 * 64])
 
     # 3rd layer: Densely Connected Layer + Dropout
-    layer_3, keep_prob = relu_dropout_layer(layer_2_flat, [7 * 7 * 64], [1024], name='relu_dropout_3')
+    layer_3, keep_prob = relu_dropout_layer(layer_2_flat, [14 * 14 * 64], [1024], name='relu_dropout_3')
 
     # 4th layer: Readout Layer
     y_predicted_one_hot, y_predicted_label = softmax_layer(layer_3, [1024], [10], name='softmax_4')

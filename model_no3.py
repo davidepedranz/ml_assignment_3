@@ -31,11 +31,10 @@ def main():
     with tf.name_scope('flatten'):
         layer_2_flat = tf.reshape(layer_2_pool, [-1, 7 * 7 * 64])
 
-    # 3rd layer: Densely Connected Layer + Dropout
-    layer_3, keep_prob = relu_dropout_layer(layer_2_flat, [7 * 7 * 64], [1024], name='relu_dropout_3')
+    # 3rd layer: dropped
 
     # 4th layer: Readout Layer
-    y_predicted_one_hot, y_predicted_label = softmax_layer(layer_3, [1024], [10], name='softmax_4')
+    y_predicted_one_hot, y_predicted_label = softmax_layer(layer_2_flat, [7 * 7 * 64], [10], name='softmax_4')
 
     # output
     y_, y_label = mnist_output_layer(name='output')
@@ -84,19 +83,19 @@ def main():
             xs, ys = mnist.train.next_batch(params.batch_size)
 
             # train the network
-            sess.run(train_step, feed_dict={x_flatten: xs, y_: ys, keep_prob: 0.5})
+            sess.run(train_step, feed_dict={x_flatten: xs, y_: ys})
 
             # every x epochs, register train and test accuracy
             if i % params.summary_every == 0:
                 # save metrics for TensorBoard
-                summary_train = sess.run(merged, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
+                summary_train = sess.run(merged, feed_dict={x_flatten: train_images, y_: train_labels})
                 train_writer.add_summary(summary_train, i)
-                summary_test = sess.run(merged, feed_dict={x_flatten: test_images, y_: test_labels, keep_prob: 1.0})
+                summary_test = sess.run(merged, feed_dict={x_flatten: test_images, y_: test_labels})
                 test_writer.add_summary(summary_test, i)
 
                 # save accuracy for plot
-                train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
-                test_acc = sess.run(accuracy, feed_dict={x_flatten: test_images, y_: test_labels, keep_prob: 1.0})
+                train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels})
+                test_acc = sess.run(accuracy, feed_dict={x_flatten: test_images, y_: test_labels})
                 accuracies_indexes.append(i)
                 accuracies_train.append(train_acc)
                 accuracies_test.append(test_acc)
@@ -106,8 +105,8 @@ def main():
                       (i, params.epochs, train_acc, test_acc))
 
         # print the results at the end of the training
-        train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels, keep_prob: 1.0})
-        test_acc = sess.run(accuracy, feed_dict={x_flatten: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+        train_acc = sess.run(accuracy, feed_dict={x_flatten: train_images, y_: train_labels})
+        test_acc = sess.run(accuracy, feed_dict={x_flatten: mnist.test.images, y_: mnist.test.labels})
         print('\nEnd of training:')
         print(' * total train accuracy = %g' % train_acc)
         print(' * total test accuracy  = %g' % test_acc)
