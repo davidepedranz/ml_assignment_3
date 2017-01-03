@@ -19,9 +19,6 @@ def main():
     # import the MNIST dataset
     mnist = datasets.mnist.read_data_sets('data', one_hot=True)
 
-    # force the seed
-    tf.set_random_seed(params.seed)
-
     # input
     x_flatten, x_image = mnist_input_layer(name='input')
 
