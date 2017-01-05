@@ -6,16 +6,33 @@ import string
 
 
 def training_parameters():
+    """
+    Return the parameters to be used in the networks.
+    :return: Parameters for the networks.
+    """
     Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc'])
     name = string.replace(sys.modules['__main__'].__file__, '.py', '')
-    return Params(epochs=50001, batch_size=50, summary_every=100, logs_path=name, num_sample_acc=1000)
+    return Params(epochs=50001, batch_size=50, summary_every=500, logs_path=name, num_sample_acc=2000)
 
 
 def get_seed():
+    """
+    Return the seed to be used in the experiments.
+    :return: Random Seed.
+    """
     return 1
 
 
 def mnist_subset(mnist, num_samples):
+    """
+    Extract a random subsection of the train and test set from a MNIST dataset.
+    This function is used to extract a random set to compute the accuracies
+    over different epochs of training.
+    :param mnist:       MNIST dataset object.
+    :param num_samples: Number of samples to be extracted for each set.
+    :return: Train and test set.
+    """
+
     # force always the same seed
     np.random.seed(get_seed())
 
