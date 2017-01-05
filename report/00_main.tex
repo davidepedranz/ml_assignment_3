@@ -1,0 +1,71 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{silence}\WarningsOff[latexfont]
+
+\usepackage{amsmath}
+
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage[binary-units,per-mode=symbol]{siunitx}
+\sisetup{list-final-separator = {, and }}
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage[american]{babel}
+\usepackage[noabbrev,capitalise]{cleveref}
+\usepackage{xspace}
+\usepackage{hyphenat}
+\usepackage[draft,inline,nomargin,index]{fixme}
+\fxsetup{theme=color}
+\usepackage{grffile}
+\usepackage{xfrac}
+\usepackage{multirow}
+\RequirePackage{xstring}
+\RequirePackage{xparse}
+\RequirePackage[index=true]{acro}
+
+\NewDocumentCommand\acrodef{mO{#1}mG{}}{\DeclareAcronym{#1}{short={#2}, long={#3}, #4}}
+\NewDocumentCommand\acused{m}{\acuse{#1}}
+
+\usepackage{upquote}
+
+\acrodef{ReLU}{Rectified Linear Unit}
+
+\begin{document}
+
+\title{Assignment 3 - Deep Networks}
+\author{
+	\IEEEauthorblockN{Davide Pedranz (189295)}
+	\texttt{davide.pedranz@studenti.unitn.it}
+}
+
+\maketitle
+
+\begin{abstract}
+Deep Networks are state of the art techniques for many difficult problems in Machine Learning, widely used for many different tasks, from image recognition to machine translation.
+In this assignment, we will use TensorFlow\textsuperscript{TM} to construct and train Deep Networks with different architectures to recognize the handwritten digits of the MNIST dataset.
+\end{abstract}
+
+\acresetall
+
+\input{01_introduction}
+\input{02_nn}
+\input{03_fc_layer}
+\input{04_softmax}
+\input{05_conv_net}
+\input{06_conv_layer}
+\input{07_pool_layer}
+\input{08_dropout}
+\input{09_mnist}
+\input{10_models}
+\input{11_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

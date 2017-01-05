@@ -1,0 +1,25 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+None of the proposed modification achieved to improve the accuracy of the original network.
+The results are summarized in table \cref{tab:summary}.
+The two layers of convolution were able to extract better features then the single layers of models 1 and 2.
+The worse performances of model 3 suggest the need of at least one Fully Connected layer to learn how to combine the features extracted by the previous layers in order to make accurate predicitons.
+
+\begin{table}
+	\centering
+	\caption{Summary of the performances of the different networks}
+	\label{tab:summary}
+	\begin{tabular}{lccc}
+		\toprule
+			\multicolumn{1}{l}{Network} &
+			\multicolumn{1}{c}{Accuracy (train)} &
+			\multicolumn{1}{c}{Accuracy (test)} \\
+		\midrule
+			Original & 1.0000 & 0.9917 \\
+			Model 1  & 1.0000 & 0.9899 \\
+			Model 2  & 0.9962 & 0.9894 \\
+			Model 3  & 0.9950 & 0.9888 \\
+		\bottomrule
+	\end{tabular}
+\end{table}

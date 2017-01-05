@@ -1,0 +1,16 @@
+\section{Softmax}
+\label{sec:softmax}
+
+Softmax is a generalization of the Logistic Regression classifier to multiclass problems.
+It computes the best class by applying a cross-entropy loss function to a weighted sum of the inputs (dot product of inputs and learned weights).
+More formally, it computes an evidence score for each class $i$
+\begin{equation*}
+    evidence_i = \sum_{j}{W_{ij} x_j + b_i},
+\end{equation*}
+then it normalizes the scores to a probability distribution over the $i$ possible values
+\begin{equation*}
+    softmax_i = \frac{e^{evidence_i}}{\sum_{j}{e^{evidence_j}}}.
+\end{equation*}
+
+Softmax is commonly used as the last layer of a Deep Network for classification problems.
+Please note that in this case the activation function is omitted since an activation value is already computed by the Softmax function.

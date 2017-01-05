@@ -1,0 +1,15 @@
+\section{Convolutional Networks}
+\label{sec:conv_net}
+
+In traditional Neural Networks, the input is encoded as a vector of raw numbers which is given as input to the first layer.
+This approach does not scale well to images.
+Let's consider a 200x200 pixel image with 3 colors.
+Each neuron of the first layer will have $200 * 200 * 3 = 120,000$ weights to learn.
+And this takes into account only a single neuron in the first layer.
+The main problem here is that we do not consider the structure of the input, which is lost during its encoding into a one dimensional array.
+In case, for instance, of image recognitions, the actual position of the pixels is very important to understand its meaning.
+
+Convolutional Neural Networks try to exploit the structure of the input to optimize the learning of images with the introduction of Convolutional layers and Pooling layers in addition to traditional Fully Connected ones.
+The new types of layer have the scope to extract features from the images, so that the traditional Fully Connected layers can work on meaningful features instead of raw pixel values.
+In both Convolutional and Pooling layers, perceptrons are organized in three dimensions: width, height and depth.
+Depth refers to different channels of the image representation, for instance RGB for colors.
