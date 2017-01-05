@@ -27,13 +27,12 @@ Note that the image is reshaped into a one dimensional array after the second Po
 
 At each training step, the network is trained with a batch of 50 images, randomly selected from the train dataset.
 The network is trained to minimize the generalized cross entropy function for a multiclass problems.
-After 20000 epochs of training, the network has an accuracy of $99.17\%$ on the complete test set.
-It is not clear if the accuracy could get better with more training, since its accuracy over time is not stable (see \cref{fig:performances}).
+After 30000 epochs of training, the network has an accuracy of $99.22\%$ on the complete test set.
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=\columnwidth]{figures/performances}
-	\caption{The graph shows the performances of the different networks on the test set over epochs of training. The plotted accuracies are measured on a random fixed subset of $1000$ elements of the test set, equal for all the networks.}
+	\caption{The graph shows the performances of the different networks on the test set over epochs of training. The plotted accuracies are measured on a random fixed subset of $2000$ elements of the test set, equal for all the networks.}
 	\label{fig:performances}
 \end{figure}
 
@@ -44,20 +43,18 @@ The first modification to the original model consist in removing the first level
 The second Convolutional layer is now directly applied to the original image.
 The rest of the network and all hyperparameters are unchanged.
 
-The performance of the network is closed to the original one, with an accuracy of $98.99\%$ on the test set.
-As for the original model, it is not clear whether the accuracy could increase with more training. 
+The performance of the network is closed to the original one, with an accuracy of $99.07\%$ on the test set.
 
 
 \subsection{Model 2}
 
 The second modification is very similar to the previous one. Instead of removing the first one, we are removing the second Convolution and Pooling layers.
 The resulting network is almost identical to Model 1, but with the difference that the layer is computing 32 filters instead of 64.
-The accuracy of this model is $98.94\%$.
+The accuracy of this model is $99.02\%$, only slightly worse than model 1.
 
 
 \subsection{Model 3}
 
-The third moditifaction consist in removing the Fully Connected layer.
-The accuracy of this network is slighly worse then the other models and scores $98.89\%$.
+The third modification consist in removing the Fully Connected layer.
+The accuracy of this network is slightly worse then the other models and scores $99.03\%$.
 This is probably due to the absence of any fully connected layer that properly combines the features extracted by the convolutional layer.
-Like for the other networks, it is not clear if the performances can improve with more training.

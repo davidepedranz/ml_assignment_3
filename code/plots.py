@@ -2,6 +2,7 @@ from export_utitilies import mkdir
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from cycler import cycler
 
 
 def smooth(x, y):
@@ -30,13 +31,16 @@ def main():
     # always disable interactive mode
     plt.ioff()
 
+    plt.rc('lines', linewidth=2)
+    plt.rc('axes', prop_cycle=(cycler('color', ['y', 'g', 'b', 'r']) + cycler('linestyle', ['-', '--', ':', '-.'])))
+
     # create normal plot
     fig1 = plt.figure()
     ax = fig1.add_subplot(111)
-    ax.plot(epoch_comp_smooth, test_acc_comp_smooth, '-', label='Original Network', linewidth=2.0)
-    ax.plot(epoch_1_smooth, test_acc_1_smooth, '--', label='Network 1', linewidth=2.0)
-    ax.plot(epoch_2_smooth, test_acc_2_smooth, '-.', label='Network 2', linewidth=2.0)
-    ax.plot(epoch_3_smooth, test_acc_3_smooth, ':', label='Network 3', linewidth=2.0)
+    ax.plot(epoch_comp_smooth, test_acc_comp_smooth, label='Original Network')
+    ax.plot(epoch_1_smooth, test_acc_1_smooth, label='Network 1')
+    ax.plot(epoch_2_smooth, test_acc_2_smooth, label='Network 2')
+    ax.plot(epoch_3_smooth, test_acc_3_smooth, label='Network 3')
     ax.set_title('Performances of the different networks', fontsize=16, y=1.02)
     ax.legend(loc='lower right', shadow=True)
     ax.set_xlabel('Epochs')

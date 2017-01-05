@@ -4,22 +4,26 @@
 None of the proposed modification achieved to improve the accuracy of the original network.
 The results are summarized in table \cref{tab:summary}.
 The two layers of convolution were able to extract better features then the single layers of models 1 and 2.
-The worse performances of model 3 suggest the need of at least one Fully Connected layer to learn how to combine the features extracted by the previous layers in order to make accurate predicitons.
+Both the final performances and their evolution over the training epochs (\cref{fig:performances}) of all modified models are very closed to each other.
+Model 1 seems to perform slightly better then the other two, even though some more experiments are required in order to get a confident result.
+The worse performances of model 2 and 3 suggest the need of to compute very complex features in order to achieve a very high score on the image classification.
+
 
 \begin{table}
 	\centering
-	\caption{Summary of the performances of the different networks}
+	\caption{Summary of the accuracies on the test set of the different networks at different epochs}
 	\label{tab:summary}
 	\begin{tabular}{lccc}
 		\toprule
 			\multicolumn{1}{l}{Network} &
-			\multicolumn{1}{c}{Accuracy (train)} &
-			\multicolumn{1}{c}{Accuracy (test)} \\
+			\multicolumn{1}{c}{Epoch 10000} &
+			\multicolumn{1}{c}{Epoch 20000} &
+			\multicolumn{1}{c}{Epoch 30000} \\
 		\midrule
-			Original & 1.0000 & 0.9917 \\
-			Model 1  & 1.0000 & 0.9899 \\
-			Model 2  & 0.9962 & 0.9894 \\
-			Model 3  & 0.9950 & 0.9888 \\
+			Original & 99.11 \% & 99.21 \% & 99.22 \% \\
+			Model 1  & 98.68 \% & 98.94 \% & 99.07 \% \\
+			Model 2  & 98.75 \% & 98.96 \% & 99.02 \% \\
+			Model 3  & 98.51 \% & 98.86 \% & 99.03 \% \\
 		\bottomrule
 	\end{tabular}
 \end{table}
