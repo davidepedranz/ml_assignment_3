@@ -10,9 +10,11 @@ def training_parameters():
     Return the parameters to be used in the networks.
     :return: Parameters for the networks.
     """
-    Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every', 'logs_path', 'num_sample_acc'])
+    Params = namedtuple('Params', ['epochs', 'batch_size', 'summary_every',
+                                   'complete_summary_every', 'logs_path', 'num_sample_acc'])
     name = string.replace(sys.modules['__main__'].__file__, '.py', '')
-    return Params(epochs=50001, batch_size=50, summary_every=500, logs_path=name, num_sample_acc=2000)
+    return Params(epochs=30000, batch_size=50, summary_every=500,
+                  complete_summary_every=10000, logs_path=name, num_sample_acc=2000)
 
 
 def get_seed():

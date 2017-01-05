@@ -17,15 +17,20 @@ def mkdir(path):
             raise
 
 
-def save_csv(accuracies_indexes, accuracies_train, accuracies_test, run_name):
+def save_csv(accuracies_indexes, accuracies_train, accuracies_test, run_name, prefix=None):
     """
     Store the output of a run as a CSV file that can be used for further analysis.
     :param accuracies_indexes: Epochs.
     :param accuracies_train:   Train accuracy.
     :param accuracies_test:    Test accuracy.
     :param run_name:           Name of the run.
+    :param prefix:             Sub-folder.
     """
     mkdir('csv')
-    real_path = 'csv' + os.sep + run_name + '.csv'
+    if prefix is None:
+        real_path = 'csv' + os.sep + run_name + '.csv'
+    else:
+	mkdir('csv' + os.sep + prefix)
+        real_path = 'csv' + os.sep + prefix + os.sep + run_name + '.csv'
     np.savetxt(real_path, zip(accuracies_indexes, accuracies_train, accuracies_test),
                header='epoch,accuracy_train,accuracy_test', delimiter=',', comments='')

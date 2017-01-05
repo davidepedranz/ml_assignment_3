@@ -16,10 +16,10 @@ def main():
     mkdir('graphs')
 
     # load data
-    epoch_comp, _, test_acc_comp = np.loadtxt('csv/model_complete.csv', delimiter=",", skiprows=1, unpack=True)
-    epoch_1, _, test_acc_1 = np.loadtxt('csv/model_no1.csv', delimiter=",", skiprows=1, unpack=True)
-    epoch_2, _, test_acc_2 = np.loadtxt('csv/model_no2.csv', delimiter=",", skiprows=1, unpack=True)
-    epoch_3, _, test_acc_3 = np.loadtxt('csv/model_no3.csv', delimiter=",", skiprows=1, unpack=True)
+    epoch_comp, _, test_acc_comp = np.loadtxt('csv/partial/model_complete.csv', delimiter=",", skiprows=1, unpack=True)
+    epoch_1, _, test_acc_1 = np.loadtxt('csv/partial/model_no1.csv', delimiter=",", skiprows=1, unpack=True)
+    epoch_2, _, test_acc_2 = np.loadtxt('csv/partial/model_no2.csv', delimiter=",", skiprows=1, unpack=True)
+    epoch_3, _, test_acc_3 = np.loadtxt('csv/partial/model_no3.csv', delimiter=",", skiprows=1, unpack=True)
 
     # smooth data
     epoch_comp_smooth, test_acc_comp_smooth = smooth(epoch_comp, test_acc_comp)
@@ -41,7 +41,7 @@ def main():
     ax.legend(loc='lower right', shadow=True)
     ax.set_xlabel('Epochs')
     ax.set_ylabel('Accuracy on the test set')
-    ax.set_ylim((0.95, 1))
+    ax.set_ylim((0.97, 1))
     ax.grid(True)
     fig1.savefig('graphs/performances.png')
 
